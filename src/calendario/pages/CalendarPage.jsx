@@ -1,25 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Calendar } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import { NavBar,  CalendarEvent, CalendarModal, FabAddNew, FabDelete } from '../components';
 import {getMessages, localizer} from '../../helpers'
-import { useCalendarStore, useUiStore } from '../../hooks';
+import { useAuthStore, useCalendarStore, useUiStore } from '../../hooks';
 
 
 export const CalendarPage = () => {
 
+  const {user} = useAuthStore();
   const {openDateModal} = useUiStore();
-  const { events, setActiveEvent } = useCalendarStore();
+  const { events, setActiveEvent, starLoadingEvent } = useCalendarStore();
 
   const [lasView, setLasView] = useState(localStorage.getItem('lasView') || 'month')
 
   const eventStyleGetter = (event, start, end, isSelected) => {
     // console.log({event, start, end, isSelected});
 
+    const miEvento = (user.uid === event.user._id ) || (user.uid === event.user.uid )
+
     const style = {
-      backgroundColor: '#347CF7',
+      backgroundColor: miEvento ? '#347CF7' : '#465660',
       borderRadius: '0px',
       opacity: 0.8,
       color: 'white'
@@ -41,6 +44,11 @@ export const CalendarPage = () => {
     localStorage.setItem('lasView', event)
     setLasView(event)
   }
+
+  useEffect(() => {
+    starLoadingEvent()
+  }, [])
+  
 
 
   return (
